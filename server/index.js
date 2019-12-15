@@ -39,6 +39,7 @@ async function start () {
   })
 
   app.get('/sections/:gentryId', (req, res, next) => {
+    console.log(req.query)
     const data = lowdb.get('freeflows').find({
       startGentryId: req.params.gentryId
     }).value()

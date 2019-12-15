@@ -43,7 +43,7 @@ module.exports = function (shipit) {
       console.log(error)
     }
 
-    shipit.start('startApp')
+    // shipit.start('startApp')
   })
 
   shipit.task('startApp', async () => {

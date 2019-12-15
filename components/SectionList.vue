@@ -1,5 +1,21 @@
 <template>
   <div>
+    <el-date-picker
+      v-model="queryDate"
+      :picker-options="pickerOptions"
+      type="date"
+      value-format="yyyy-MM-dd"
+      placeholder="選擇查詢日期"
+    />
+    <el-time-select
+      v-model="queryHour"
+      :picker-options="{
+        start: '00:00',
+        step: '01:00',
+        end: '23:00'
+      }"
+      placeholder="選擇查詢時段"
+    />
     <el-table
       :data="sectionsFiltered"
       @current-change="handleCurrentChange"
@@ -53,6 +69,7 @@
 
 <script>
 import request from 'axios'
+import moment from 'moment'
 import LineChart from './Line'
 
 function getColorByLabel (label) {
@@ -76,6 +93,13 @@ export default {
   },
   data () {
     return {
+      pickerOptions: {
+        disabledDate (time) {
+          return time.getTime() > moment().subtract(1, 'day')
+        }
+      },
+      queryDate: moment().subtract(1, 'day').format('YYYY-MM-DD'),
+      queryHour: '00:00',
       search: '',
       sections: [],
       data: {},
@@ -120,8 +144,8 @@ export default {
     handleCurrentChange (row) {
       // this.loaded = false
       this.gtagTracking(row)
-
-      request('/sections/' + row.gentryId).then((res) => {
+      const url = `/sections/${row.gentryId}?date=${this.queryDate}&hour=${this.queryHour}`
+      request(url).then((res) => {
         this.data = res.data
         // debugger
         // const data = []
