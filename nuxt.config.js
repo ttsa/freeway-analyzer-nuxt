@@ -6,9 +6,9 @@ module.exports = {
   */
   head: {
     script: [
-      { src: 'https://cdn.bootcss.com/element-ui/2.12.0/index.js' },
-      { src: 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js' },
-      { src: 'https://unpkg.com/vue-chartjs/dist/vue-chartjs.min.js' }
+      // { src: 'https://cdn.bootcss.com/element-ui/2.12.0/index.js' }
+      // { src: 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js' },
+      // { src: 'https://unpkg.com/vue-chartjs/dist/vue-chartjs.min.js' }
     ],
     title: process.env.npm_package_name || '',
     meta: [
