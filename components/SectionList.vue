@@ -44,9 +44,6 @@
       v-if="loaded"
       class="chart"
     >
-      <article>
-        車輛總計: {{ data.count }} 輛, 無效資料: {{ data.invalidCount }} 輛, 行駛方向: {{ data.direction }}, 85分位: {{ data._85th }} KM/h
-      </article>
       <line-chart
         :chart-data="chartData"
       />
@@ -64,8 +61,8 @@ function getColorByLabel (label) {
     '小貨車': 'rgb(255, 159, 64)',
     '大貨車': 'rgb(255, 205, 86)',
     '大客車': 'rgb(75, 192, 192)',
-    '聯結車': 'rgb(54, 162, 235)'
-
+    '聯結車': 'rgb(54, 162, 235)',
+    '總計': 'rgb(153, 102, 255)'
     // purple: 'rgb(153, 102, 255)',
     // grey: 'rgb(201, 203, 207)'
   }
@@ -133,35 +130,45 @@ export default {
         const chartData = {
           datasets: []
         }
-        let maxSpeed = 0
+        const maxSpeed = res.data.maxSpeed
+        const xLabels = [...Array(maxSpeed).keys()]
+
+        // const totalData = Array(maxSpeed + 1)
+        const totalData = Array.from({ length: maxSpeed }, (v, k) => 0)
+        // debugger
+        let totalValidCount = 0
+        let total85th = 0
         Object.keys(res.data.data).forEach((l, k) => {
-          if (!chartData.datasets[k]) {
-            const speeds = res.data.data[l].speeds
-            Object.keys(speeds).forEach((k) => {
-              const s = speeds[k]
-              if (s > maxSpeed) { maxSpeed = s }
-            })
-          }
-        })
-        const xLabels = [...Array(maxSpeed + 1).keys()]
-        Object.keys(res.data.data).forEach((l, k) => {
-          const speeds = res.data.data[l].speeds
+          const dataByVType = res.data.data[l]
+          const speeds = dataByVType.speeds
           const data = []
-          xLabels.forEach((v) => {
+          xLabels.forEach((v, i) => {
             let s = speeds[v]
             if (typeof s === 'undefined') {
               s = 0
             }
+            totalData[i] = totalData[i] + s
             data.push(s)
           })
-
+          totalValidCount = totalValidCount + dataByVType.validCount
+          total85th = total85th + dataByVType._85th
           chartData.datasets[k] = {
             fill: false,
-            label: l,
+            label: `${l}, ${dataByVType.validCount} 輛, 85th ${dataByVType._85th} KM/h `,
             borderColor: getColorByLabel(l),
             data
           }
         })
+        total85th = total85th / (chartData.datasets.length - 1)
+        // console.log('totalData', totalData)
+        // count total
+        chartData.datasets.unshift({
+          fill: false,
+          label: `總計 ${totalValidCount}輛, 85th ${total85th} KM/h `,
+          borderColor: getColorByLabel('總計'),
+          data: totalData
+        })
+
         chartData.labels = xLabels
         this.chartData = Object.assign({}, {}, chartData)
 
