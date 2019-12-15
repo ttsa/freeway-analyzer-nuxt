@@ -185,8 +185,8 @@ export default {
       // console.log(this.sectionRange(row))
       if (window.gtag) {
         window.gtag('event', 'click', {
-          'event_category': 'section',
-          'event_label': this.sectionRange(row)
+          'event_category': 'section'
+          // 'event_label': this.sectionRange(row)
         })
       }
     },

@@ -20,16 +20,24 @@ module.exports = function (shipit) {
       './dist',
       shipit.config.deployTo + '/current'
     )
+    await shipit.copyToRemote(
+      './.nuxt',
+      shipit.config.deployTo + '/current'
+    )
   })
 
   shipit.on('deployed', async function () {
     // var shared_path = `${shipit.config.deployTo}/shared`
     try {
+      await shipit.remote(`cd ${shipit.currentPath} && nvm use && npm install --production`)
       await shipit.local(`npm run build`)
-      await shipit.remote(`cd ${shipit.currentPath} && nvm use && npm install`)
       await shipit.copyToRemote(
         './dist',
         shipit.deployTo
+      )
+      await shipit.copyToRemote(
+        './.nuxt',
+        shipit.config.deployTo + '/current'
       )
     } catch (error) {
       console.log(error)
