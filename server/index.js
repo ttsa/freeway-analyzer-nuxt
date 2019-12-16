@@ -1,3 +1,4 @@
+const path = require('path')
 const express = require('express')
 const consola = require('consola')
 const { Nuxt, Builder } = require('nuxt')
@@ -12,7 +13,9 @@ const lowdb = low(adapter)
 const config = require('../nuxt.config.js')
 config.dev = process.env.NODE_ENV !== 'production'
 
-const getGentry = require('./gentries')
+const utilPath = path.join(__dirname, '/../utils/')
+// const getGentry = require('./gentries')
+const getAvaiableSections = require(utilPath + 'getAvaiableSections')
 async function start () {
   // Init Nuxt.js
   const nuxt = new Nuxt(config)
@@ -28,19 +31,20 @@ async function start () {
   }
 
   app.get('/sections', (req, res, next) => {
-    const gentries = getGentry('all')
-    const list = Object.keys(gentries).map((k) => {
-      return {
-        gentryId: k,
-        ...gentries[k]
-      }
-    })
+    // const gentries = getGentry('all')
+    // const list = Object.keys(gentries).map((k) => {
+    //   return {
+    //     gentryId: k,
+    //     ...gentries[k]
+    //   }
+    // })
+    const list = getAvaiableSections()
     res.json(list)
   })
 
-  app.get('/sections/:gentryId', (req, res, next) => {
+  app.get('/sections/:startId', (req, res, next) => {
     const data = lowdb.get('freeflows').find({
-      startGentryId: req.params.gentryId
+      startGentryId: req.params.startId
     }).value()
     res.json(data)
   })

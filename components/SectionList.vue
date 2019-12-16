@@ -39,21 +39,21 @@
           height="500"
           style="width: 100%"
         >
-          <el-table-column
-            prop="gentryId"
+          <!-- <el-table-column
+            :formatter="(r) => { return r.startGentry + ',' + r.endGentry}"
             label="ID"
             sortable
-          />
+          /> -->
           <el-table-column
-            prop="sectionStart"
-            label="路段起點"
-            width="150"
+            :formatter="(r) => { return r.name }"
+            prop="startMile"
+            label="路段"
             sortable
           />
           <el-table-column
-            :formatter="(row, col) => { return row.locationMileRaw}"
-            prop="locationMile"
-            label="路段"
+            :formatter="(row, col) => { return row.mile}"
+            prop="startMile"
+            label="里程"
             sortable
           />
         </el-table>
@@ -63,9 +63,9 @@
           :chart-data="chartData"
         />
         <el-row>
-          <el-button @click="checkSectionInGoogleMap">
+          <!-- <el-button @click="checkSectionInGoogleMap">
             GOOGLE MAP
-          </el-button>
+          </el-button> -->
           <!-- <el-button type="primary">
             Primary
           </el-button>
@@ -82,6 +82,13 @@
             Danger
           </el-button> -->
         </el-row>
+        <iframe
+          :src="gmapUrl"
+          width="600"
+          height="450"
+          frameborder="0"
+          style="border:0"
+        />
       </el-main>
     </el-container>
   </div>
@@ -113,6 +120,7 @@ export default {
   },
   data () {
     return {
+      gmapUrl: '',
       pickerOptions: {
         disabledDate (time) {
           return time.getTime() > moment().subtract(1, 'day')
@@ -169,6 +177,9 @@ export default {
     checkSectionInGoogleMap () {
       const c = this.currentSection
       const url = `https://www.google.com/maps/search/${c.PositionLat},${c.PositionLon}`
+      // const url = `https://www.google.com/maps/dir/${c.startPositon}/${c.endPositon}`
+      // const url = `https://www.google.com/maps/embed/v1/directions?key=AIzaSyBOUrqs6YzoKU1PCEcdXWWXv7JKzXiHkK4&origin=${c.startPositon}&destination=${c.endPositon}`
+      // this.gmapUrl = url
       window.open(url)
     },
     handleCurrentChange (row) {
@@ -177,7 +188,8 @@ export default {
       if (!row) { return }
       this.gtagTracking(row)
       this.currentSection = row
-      const url = `/sections/${row.gentryId}?date=${this.queryDate}&hour=${this.queryHour}`
+      this.gmapUrl = `https://www.google.com/maps/embed/v1/directions?key=${process.env.GMAP_KEY}&origin=${row.startPositon}&destination=${row.endPositon}`
+      const url = `/sections/${row.startGentry}?date=${this.queryDate}&hour=${this.queryHour}`
       request(url).then((res) => {
         this.data = res.data
         // debugger
