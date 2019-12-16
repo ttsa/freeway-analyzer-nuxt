@@ -20,7 +20,7 @@
       :data="sectionsFiltered"
       @current-change="handleCurrentChange"
       highlight-current-row
-      height="400"
+      height="250"
       style="width: 100%"
     >
       <el-table-column
@@ -183,7 +183,8 @@ export default {
             data
           }
         })
-        total85th = total85th / (chartData.datasets.length - 1)
+        total85th = total85th / (chartData.datasets.length)
+        total85th = parseInt(total85th)
         // console.log('totalData', totalData)
         // count total
         chartData.datasets.unshift({

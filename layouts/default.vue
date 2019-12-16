@@ -12,3 +12,9 @@
     <nuxt />
   </div>
 </template>
+
+<style>
+body{
+  background: #FFF;
+}
+</style>
