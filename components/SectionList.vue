@@ -222,7 +222,7 @@ export default {
         // count total
         chartData.datasets.unshift({
           fill: false,
-          label: `總計 ${totalValidCount}輛, 85th ${total85th} KM/h `,
+          label: `總計 ${totalValidCount} 輛, 85th ${total85th} KM/h `,
           borderColor: getColorByLabel('總計'),
           data: totalData
         })

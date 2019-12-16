@@ -43,13 +43,13 @@ module.exports = function (shipit) {
       console.log(error)
     }
 
-    // shipit.start('startApp')
+    shipit.start('restartApp')
   })
 
-  shipit.task('startApp', async () => {
+  shipit.task('restartApp', async () => {
     const currentPath = `${shipit.config.deployTo}/current`
     try {
-      await shipit.remote(`cd ${currentPath} && nvm use && pm2 restart`)
+      await shipit.remote(`cd ${currentPath} && nvm use && pm2 restart ecosystem.config.js`)
       // await shipit.remote(`pm2 start ${current_path}/srv/index.js --name ${name}`)
     } catch (error) {
       // await shipit.remote(`pm2 restart ${name}`)
