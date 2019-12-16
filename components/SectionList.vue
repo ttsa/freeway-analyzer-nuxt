@@ -1,69 +1,63 @@
 <template>
   <div>
-    <el-date-picker
-      v-model="queryDate"
-      :picker-options="pickerOptions"
-      type="date"
-      value-format="yyyy-MM-dd"
-      placeholder="選擇查詢日期"
-    />
-    <el-time-select
-      v-model="queryHour"
-      :picker-options="{
-        start: '00:00',
-        step: '01:00',
-        end: '23:00'
-      }"
-      placeholder="選擇查詢時段"
-    />
-    <el-table
-      :data="sectionsFiltered"
-      @current-change="handleCurrentChange"
-      highlight-current-row
-      height="250"
-      style="width: 100%"
-    >
-      <el-table-column
-        prop="gentryId"
-        label="ID"
+    <section class="query-section">
+      <el-date-picker
+        v-model="queryDate"
+        :picker-options="pickerOptions"
+        type="date"
+        value-format="yyyy-MM-dd"
+        placeholder="選擇查詢日期"
       />
-      <el-table-column
-        prop="roadName"
-        label="路名"
-        sortable
+      <el-time-select
+        v-model="queryHour"
+        :picker-options="{
+          start: '00:00',
+          step: '01:00',
+          end: '23:00'
+        }"
+        placeholder="選擇查詢時段"
       />
-      <el-table-column
-        prop="sectionStart"
-        label="路段起點"
-        width="400"
-        sortable
-      />
-      <el-table-column
-        prop="direction"
-        label="方向"
-        sortable
-      />
-      <!--
-      <el-table-column
-        prop="tripLength"
-        label="距離"
-        sortable
-      />
+      <el-select v-model="queryRoadName" placeholder="選擇國道路段">
+        <el-option
+          v-for="item in avaiableRoadNames"
+          :key="item"
+          :value="item"
+        />
+      </el-select>
+      <el-radio-group v-model="queryDirection" style="margin-top:-4px">
+        <el-radio-button label="N" />
+        <el-radio-button label="S" />
+      </el-radio-group>
+    </section>
 
-      <el-table-column
-        prop="_85th"
-        label="85th"
-        sortable
-      /> -->
-    </el-table>
-    <div
-      v-if="loaded"
-      class="chart"
-    >
-      <line-chart
-        :chart-data="chartData"
-      />
-    </div>
+    <el-container style="height: 500px; border: 1px solid #eee">
+      <el-aside width="250px" style="background-color: rgb(238, 241, 246)">
+        <el-table
+          :data="sectionsFiltered"
+          @current-change="handleCurrentChange"
+          highlight-current-row
+          height="500"
+          style="width: 100%"
+        >
+          <el-table-column
+            prop="gentryId"
+            label="ID"
+            sortable
+          />
+          <el-table-column
+            prop="sectionStart"
+            label="路段起點"
+            width="150"
+            sortable
+          />
+        </el-table>
+      </el-aside>
+      <el-main>
+        <line-chart
+          :chart-data="chartData"
+        />
+      </el-main>
+    </el-container>
   </div>
 </template>
 
@@ -98,6 +92,9 @@ export default {
           return time.getTime() > moment().subtract(1, 'day')
         }
       },
+      avaiableRoadNames: [ '國道1號', '國道3號', '國道3甲', '國道5號', '國道1號汐止五股高架道路', '國道1號五股楊梅高架道路' ],
+      queryDirection: 'N',
+      queryRoadName: '國道1號',
       queryDate: moment().subtract(1, 'day').format('YYYY-MM-DD'),
       queryHour: '00:00',
       search: '',
@@ -121,8 +118,10 @@ export default {
       // TODO
       // implement filter function
       return this.sections.filter((data) => {
-        if (!this.search) { return true }
-        return true
+        if (data.direction === this.queryDirection &&
+          data.roadName === this.queryRoadName) {
+          return true
+        }
       })
     }
   },
@@ -142,7 +141,9 @@ export default {
       })
     },
     handleCurrentChange (row) {
-      // this.loaded = false
+      this.loaded = false
+      // prevent emptry row
+      if (!row) { return }
       this.gtagTracking(row)
       const url = `/sections/${row.gentryId}?date=${this.queryDate}&hour=${this.queryHour}`
       request(url).then((res) => {
@@ -226,6 +227,9 @@ export default {
 </script>
 
 <style scoped>
+.query-section {
+  margin: 1em 0;
+}
 .chart {
   min-height: 40vh;
 }
