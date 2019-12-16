@@ -31,7 +31,7 @@
     </section>
 
     <el-container style="height: 500px; border: 1px solid #eee">
-      <el-aside width="250px" style="background-color: rgb(238, 241, 246)">
+      <el-aside width="350px" style="background-color: rgb(238, 241, 246)">
         <el-table
           :data="sectionsFiltered"
           @current-change="handleCurrentChange"
@@ -50,12 +50,38 @@
             width="150"
             sortable
           />
+          <el-table-column
+            :formatter="(row, col) => { return row.locationMileRaw}"
+            prop="locationMile"
+            label="路段"
+            sortable
+          />
         </el-table>
       </el-aside>
-      <el-main>
+      <el-main v-if="loaded">
         <line-chart
           :chart-data="chartData"
         />
+        <el-row>
+          <el-button @click="checkSectionInGoogleMap">
+            GOOGLE MAP
+          </el-button>
+          <!-- <el-button type="primary">
+            Primary
+          </el-button>
+          <el-button type="success">
+            Success
+          </el-button>
+          <el-button type="info">
+            Info
+          </el-button>
+          <el-button type="warning">
+            Warning
+          </el-button>
+          <el-button type="danger">
+            Danger
+          </el-button> -->
+        </el-row>
       </el-main>
     </el-container>
   </div>
@@ -97,7 +123,7 @@ export default {
       queryRoadName: '國道1號',
       queryDate: moment().subtract(1, 'day').format('YYYY-MM-DD'),
       queryHour: '00:00',
-      search: '',
+      currentSection: {},
       sections: [],
       data: {},
       loaded: false,
@@ -140,11 +166,17 @@ export default {
         // !this.search || data.name.toLowerCase().includes(this.search.toLowerCase())
       })
     },
+    checkSectionInGoogleMap () {
+      const c = this.currentSection
+      const url = `https://www.google.com/maps/search/${c.PositionLat},${c.PositionLon}`
+      window.open(url)
+    },
     handleCurrentChange (row) {
       this.loaded = false
       // prevent emptry row
       if (!row) { return }
       this.gtagTracking(row)
+      this.currentSection = row
       const url = `/sections/${row.gentryId}?date=${this.queryDate}&hour=${this.queryHour}`
       request(url).then((res) => {
         this.data = res.data
