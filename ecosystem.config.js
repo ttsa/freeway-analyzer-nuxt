@@ -1,9 +1,9 @@
 module.exports = {
   apps: [{
     name: 'freeway-analyzer',
-    script: 'npm',
-    args: 'start',
+    script: 'server/index.js',
     env: {
+      NODE_ENV: 'production',
       PORT: 4000
     }
   }]
