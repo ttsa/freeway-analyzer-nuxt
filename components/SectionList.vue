@@ -150,7 +150,7 @@ export default {
       queryDate: '2019-12-14',
       queryHour: '15:00',
       querySectionVisible: false,
-      currentSection: {},
+      currentSection: false,
       sections: [],
       data: {},
       loaded: false,
@@ -176,6 +176,20 @@ export default {
       })
     }
   },
+  watch: {
+    queryDirection () {
+      this.resetCurrentQuerySection()
+    },
+    queryRoadName () {
+      this.resetCurrentQuerySection()
+    },
+    queryDate () {
+      this.queryOnDateHourChange()
+    },
+    queryHour () {
+      this.queryOnDateHourChange()
+    }
+  },
   created () {
     request('/sections').then((res) => {
       this.sections = res.data
@@ -187,6 +201,14 @@ export default {
     // this.directionsRenderer.setMap(this.$refs.gMap)
   },
   methods: {
+    resetCurrentQuerySection () {
+      this.currentSection = false
+    },
+    queryOnDateHourChange () {
+      if (this.currentSection) {
+        this.handleCurrentChange(this.currentSection)
+      }
+    },
     toggleChartStyle () {
       this.isChartExpand = !this.isChartExpand
       this.chartData = Object.assign({}, this.chartData)
@@ -205,23 +227,6 @@ export default {
       this.directionsService = new window.google.maps.DirectionsService()
       this.directionsRenderer = new window.google.maps.DirectionsRenderer()
       this.directionsRenderer.setMap(e.map)
-    },
-    searchData (sections) {
-      // console.log('sections', sections)
-      return sections.filter((data) => {
-        if (!this.search) {
-          return data
-        }
-        // !this.search || data.name.toLowerCase().includes(this.search.toLowerCase())
-      })
-    },
-    checkSectionInGoogleMap () {
-      const c = this.currentSection
-      // const url = `https://www.google.com/maps/search/${c.PositionLat},${c.PositionLon}`
-      const url = `https://www.google.com/maps/dir/${c.startPositon}/${c.endPositon}`
-      // const url = `https://www.google.com/maps/embed/v1/directions?key=AIzaSyBOUrqs6YzoKU1PCEcdXWWXv7JKzXiHkK4&origin=${c.startPositon}&destination=${c.endPositon}`
-      // this.gmapUrl = url
-      window.open(url)
     },
     drawSection (row) {
       const request = {
