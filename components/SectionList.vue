@@ -87,8 +87,8 @@
           :style="chartStyle"
         />
       </div>
-      <div v-else>
-        <h2 style="margin-top:25%;">
+      <div v-else class="message">
+        <h2>
           <span v-if="loaded && chartDataNotFound">查無資料</span>
           <span v-else>選擇路段</span>
         </h2>
@@ -267,7 +267,7 @@ export default {
           datasets: []
         }
         const maxSpeed = res.data.maxSpeed
-        const xLabels = [...Array(maxSpeed).keys()]
+        const xLabels = [...Array(maxSpeed + 1).keys()]
 
         // const totalData = Array(maxSpeed + 1)
         const totalData = Array.from({ length: maxSpeed }, (v, k) => 0)
@@ -366,6 +366,12 @@ export default {
   position: fixed;
   bottom: 0px;
   right: 0;
+}
+.message {
+  height: 100%;
+  display: flex;
+  justify-content: center; /* align horizontal */
+  align-items: center; /* align vertical */
 }
 #chart-wrapper.expanded{
   position: fixed;

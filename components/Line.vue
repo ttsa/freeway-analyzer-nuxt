@@ -16,6 +16,14 @@ export default {
           maintainAspectRatio: false,
           legend: {
             position: 'bottom'
+          },
+          scales: {
+            yAxes: [{
+              ticks: {
+                reverse: false,
+                stepSize: 1
+              }
+            }]
           }
         }
       }
