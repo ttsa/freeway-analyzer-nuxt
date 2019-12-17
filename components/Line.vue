@@ -13,7 +13,10 @@ export default {
       default: () => {
         return {
           responsive: true,
-          maintainAspectRatio: false
+          maintainAspectRatio: false,
+          legend: {
+            position: 'bottom'
+          }
         }
       }
     }

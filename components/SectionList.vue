@@ -69,17 +69,28 @@
       </el-popover>
     </section>
 
-    <div id="chart-wrapper">
+    <div id="chart-wrapper" :class="isChartExpand ? 'expanded' : ''">
       <div v-if="loaded && !chartDataNotFound">
+        <el-button
+          @click="toggleChartStyle"
+          type="primary"
+          round
+          size="mini"
+          style="position: absolute;right: 5px;top: 5px;"
+        >
+          <span v-if="isChartExpand">縮小</span>
+          <span v-else>長高</span>
+        </el-button>
         <line-chart
           id="chart"
           :chart-data="chartData"
+          :style="chartStyle"
         />
       </div>
       <div v-else>
         <h2 style="margin-top:25%;">
           <span v-if="loaded && chartDataNotFound">查無資料</span>
-          <span v-else>點擊左邊的路段</span>
+          <span v-else>選擇路段</span>
         </h2>
       </div>
       <!-- <el-row>
@@ -143,6 +154,7 @@ export default {
       sections: [],
       data: {},
       loaded: false,
+      isChartExpand: false,
       chartDataNotFound: true,
       chartData: {
         // labels: [...Array(350).keys()],
@@ -179,12 +191,24 @@ export default {
     // this.directionsRenderer.setMap(this.$refs.gMap)
   },
   methods: {
+    toggleChartStyle () {
+      this.isChartExpand = !this.isChartExpand
+      this.chartData = Object.assign({}, this.chartData)
+      if (this.isChartExpand) {
+        this.chartStyle = {
+          height: '90vh'
+        }
+      } else {
+        this.chartStyle = {
+          height: '400px'
+        }
+      }
+    },
     mapInit (e) {
       if (this.directionsService) { return }
       this.directionsService = new window.google.maps.DirectionsService()
       this.directionsRenderer = new window.google.maps.DirectionsRenderer()
       this.directionsRenderer.setMap(e.map)
-      console.log(e.map)
     },
     searchData (sections) {
       // console.log('sections', sections)
@@ -266,7 +290,7 @@ export default {
           total85th = total85th + dataByVType._85th
           chartData.datasets[k] = {
             fill: false,
-            label: `${l}, ${dataByVType.validCount} 輛, 85th ${dataByVType._85th} KM/h `,
+            label: `${l} ${dataByVType.validCount} 輛, 85th ${dataByVType._85th} KM/h `,
             borderColor: getColorByLabel(l),
             data
           }
@@ -278,6 +302,10 @@ export default {
         chartData.datasets.unshift({
           fill: false,
           label: `總計 ${totalValidCount} 輛, 85th ${total85th} KM/h `,
+          // label: [
+          //   `總計 ${totalValidCount} 輛`,
+          //   `85th ${total85th} KM/h`
+          // ],
           borderColor: getColorByLabel('總計'),
           data: totalData
         })
@@ -338,6 +366,10 @@ export default {
   position: fixed;
   bottom: 0px;
   right: 0;
+}
+#chart-wrapper.expanded{
+  position: fixed;
+  height: 90vh;
 }
 /* #section-list {
   position: fixed;
