@@ -157,14 +157,10 @@ export default {
       isChartExpand: false,
       chartDataNotFound: true,
       chartData: {
-        // labels: [...Array(350).keys()],
-        datasets: [
-          // {
-          //   label: '車量',
-          //   backgroundColor: '#f87979',
-          //   data: []
-          // }
-        ]
+        datasets: []
+      },
+      chartStyle: {
+        height: '400px'
       }
     }
   },
@@ -250,10 +246,11 @@ export default {
       // this.gmapUrl = `https://www.google.com/maps/embed/v1/directions?key=${process.env.GMAP_KEY}&origin=${row.startPositon}&destination=${row.endPositon}`
       const url = `/sections/${row.startGentry}/${row.endGentry}/${this.queryDate} ${this.queryHour}`
       request(url).then((res) => {
-        this.data = res.data
+        // this.data = res.data
+        const data = res.data
         this.loaded = true
 
-        if (!res.data.maxSpeed) {
+        if (!data.maxSpeed) {
           this.chartDataNotFound = true
           return
         }
@@ -266,7 +263,7 @@ export default {
         const chartData = {
           datasets: []
         }
-        const maxSpeed = res.data.maxSpeed
+        const maxSpeed = data.maxSpeed
         const xLabels = [...Array(maxSpeed + 1).keys()]
 
         // const totalData = Array(maxSpeed + 1)
@@ -274,17 +271,17 @@ export default {
         // debugger
         let totalValidCount = 0
         let total85th = 0
-        Object.keys(res.data.data).forEach((l, k) => {
-          const dataByVType = res.data.data[l]
+        Object.keys(data.byVtype).forEach((l, k) => {
+          const dataByVType = data.byVtype[l]
           const speeds = dataByVType.speeds
-          const data = []
+          const _data = []
           xLabels.forEach((v, i) => {
             let s = speeds[v]
             if (typeof s === 'undefined') {
               s = 0
             }
             totalData[i] = totalData[i] + s
-            data.push(s)
+            _data.push(s)
           })
           totalValidCount = totalValidCount + dataByVType.validCount
           total85th = total85th + dataByVType._85th
@@ -292,7 +289,7 @@ export default {
             fill: false,
             label: `${l} ${dataByVType.validCount} 輛, 85th ${dataByVType._85th} KM/h `,
             borderColor: getColorByLabel(l),
-            data
+            data: _data
           }
         })
         total85th = total85th / (chartData.datasets.length)

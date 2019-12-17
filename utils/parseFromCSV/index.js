@@ -25,11 +25,16 @@ async function main () {
     // }
 
     const data = await calDataByFile(filePath)
-
+    const invalidCount = {}
     Object.keys(data).forEach((k) => {
       // console.log(k)
-      if (lowdb.get('freeflows').find({ key: k }).value() === undefined) {
-        const [startGentryId, endGentryId, timestamp] = k.split(',')
+      const [startGentryId, endGentryId, timestamp] = k.split(',')
+      const q = {
+        s: startGentryId,
+        e: endGentryId,
+        t: timestamp
+      }
+      if (lowdb.get('freeflows').find(q).value() === undefined) {
         let maxSpeed = 0
 
         Object.keys(data[k]).forEach((vTypes) => {
@@ -63,18 +68,21 @@ async function main () {
             .get('freeflows')
             .push({
             // key: k,
-              startGentryId,
-              endGentryId,
-              timestamp,
-              data: data[k],
-              maxSpeed
+              s: startGentryId,
+              e: endGentryId,
+              t: timestamp,
+              d: data[k],
+              m: maxSpeed
             })
             .write()
         } else {
           console.log(startGentryId, endGentryId, 'is not avaiable section')
+          const key = startGentryId + endGentryId
+          invalidCount[key] = null
         }
       }
     })
+    console.log(Object.keys(invalidCount).length, 'sections')
   } catch (e) {
     console.log(e)
   }

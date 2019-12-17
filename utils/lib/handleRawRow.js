@@ -84,7 +84,7 @@ function handleRow (index, row) {
         // vehicleId,
         key,
         tripStartDateTime,
-        vehicleType,
+        vehicleType: row.vehicleType,
         startDateTime,
         endDateTime,
         startGentryId,

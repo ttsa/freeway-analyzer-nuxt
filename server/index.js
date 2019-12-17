@@ -8,14 +8,14 @@ const low = require('lowdb')
 const FileSync = require('lowdb/adapters/FileSync')
 const adapter = new FileSync('./server/db.json')
 const lowdb = low(adapter)
-
-// Import and Set Nuxt.js options
 const config = require('../nuxt.config.js')
+// Import and Set Nuxt.js options
 config.dev = process.env.NODE_ENV !== 'production'
 
 const utilPath = path.join(__dirname, '/../utils/')
 // const getGentry = require('./gentries')
-const getAvaiableSections = require(utilPath + 'getAvaiableSections')
+const getVehicleType = require(path.join(utilPath, 'lib/vehicleTypes'))
+const getAvaiableSections = require(path.join(utilPath, 'getAvaiableSections'))
 async function start () {
   // Init Nuxt.js
   const nuxt = new Nuxt(config)
@@ -44,14 +44,28 @@ async function start () {
 
   app.get('/sections/:startId/:endId/:timestamp', (req, res, next) => {
     const q = {
-      startGentryId: req.params.startId,
-      endGentryId: req.params.endId,
-      timestamp: req.params.timestamp
+      s: req.params.startId,
+      e: req.params.endId,
+      t: req.params.timestamp
     }
-
     console.log(q)
     const data = lowdb.get('freeflows').find(q).value()
-    res.json(data)
+    // console.log(data)
+    const result = {
+      byVtype: {},
+      maxSpeed: 0
+    }
+    if (data) {
+      result.maxSpeed = data.m
+      Object.keys(data.d).forEach((vType) => {
+        // console.log(vType)
+        const _vType = getVehicleType(vType)
+        // console.log('_vType', _vType)
+        // console.log('vType', vType)
+        result.byVtype[_vType] = data.d[vType.toString()]
+      })
+    }
+    res.json(result)
   })
 
   // Give nuxt middleware to express

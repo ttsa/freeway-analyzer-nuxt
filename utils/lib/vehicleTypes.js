@@ -7,6 +7,7 @@ const types = {
 }
 
 module.exports = function (id) {
+  id = parseInt(id)
   const name = types[id]
   if (name) {
     return name
