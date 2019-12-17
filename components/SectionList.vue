@@ -64,7 +64,7 @@
     </el-table>
 
     <div id="chart-wrapper">
-      <div v-if="loaded">
+      <div v-if="loaded && !chartDataNotFound">
         <line-chart
           id="chart"
           :chart-data="chartData"
@@ -72,7 +72,8 @@
       </div>
       <div v-else>
         <h2 style="margin-top:25%;">
-          點擊左邊的路段
+          <span v-if="loaded && chartDataNotFound">查無資料</span>
+          <span v-else>點擊左邊的路段</span>
         </h2>
       </div>
       <!-- <el-row>
@@ -119,12 +120,14 @@ export default {
       avaiableRoadNames: [ '國道1號', '國道3號', '國道3甲', '國道5號', '國道1號汐止五股高架道路', '國道1號五股楊梅高架道路' ],
       queryDirection: 'N',
       queryRoadName: '國道1號',
-      queryDate: moment().subtract(1, 'day').format('YYYY-MM-DD'),
-      queryHour: '00:00',
+      // queryDate: moment().subtract(1, 'day').format('YYYY-MM-DD'),
+      queryDate: '2019-12-14',
+      queryHour: '15:00',
       currentSection: {},
       sections: [],
       data: {},
       loaded: false,
+      chartDataNotFound: true,
       chartData: {
         // labels: [...Array(350).keys()],
         datasets: [
@@ -204,10 +207,17 @@ export default {
       this.currentSection = row
       this.drawSection(row)
       // this.gmapUrl = `https://www.google.com/maps/embed/v1/directions?key=${process.env.GMAP_KEY}&origin=${row.startPositon}&destination=${row.endPositon}`
-      const url = `/sections/${row.startGentry}?date=${this.queryDate}&hour=${this.queryHour}`
-
+      const url = `/sections/${row.startGentry}/${row.endGentry}/${this.queryDate} ${this.queryHour}`
       request(url).then((res) => {
         this.data = res.data
+        this.loaded = true
+
+        if (!res.data.maxSpeed) {
+          this.chartDataNotFound = true
+          return
+        }
+
+        this.chartDataNotFound = false
         // debugger
         // const data = []
         // const xLabel = Object.keys(res.data.data)
@@ -257,8 +267,6 @@ export default {
 
         chartData.labels = xLabels
         this.chartData = Object.assign({}, {}, chartData)
-
-        this.loaded = true
       })
     },
     sectionRange (row, col) {

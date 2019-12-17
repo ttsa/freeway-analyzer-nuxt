@@ -1,8 +1,8 @@
 const exec = require('child_process').exec
 const moment = require('moment')
 const cliProgress = require('cli-progress')
-const parseCSV = require('./parseCSV')
-const handleRawRow = require('./handleRawRow')
+const parseCSV = require('../lib/parseCSV')
+const handleRawRow = require('../lib/handleRawRow')
 
 module.exports = function (file) {
   return new Promise((resolve, reject) => {

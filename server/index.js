@@ -42,10 +42,15 @@ async function start () {
     res.json(list)
   })
 
-  app.get('/sections/:startId', (req, res, next) => {
-    const data = lowdb.get('freeflows').find({
-      startGentryId: req.params.startId
-    }).value()
+  app.get('/sections/:startId/:endId/:timestamp', (req, res, next) => {
+    const q = {
+      startGentryId: req.params.startId,
+      endGentryId: req.params.endId,
+      timestamp: req.params.timestamp
+    }
+
+    console.log(q)
+    const data = lowdb.get('freeflows').find(q).value()
     res.json(data)
   })
 

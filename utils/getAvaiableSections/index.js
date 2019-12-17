@@ -1,4 +1,5 @@
-const getGentry = require('../../server/gentries')
+const path = require('path')
+const getGentry = require(path.join(__dirname, '../lib', 'gentries'))
 
 const gentries = getGentry('all')
 
