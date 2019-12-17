@@ -68,63 +68,20 @@
         </el-button>
       </el-popover>
     </section>
-
-    <div id="chart-wrapper" :class="isChartExpand ? 'expanded' : ''">
-      <div v-if="loaded && !chartDataNotFound">
-        <el-button
-          @click="toggleChartStyle"
-          type="primary"
-          round
-          size="mini"
-          style="position: absolute;right: 5px;top: 5px;"
-        >
-          <span v-if="isChartExpand">縮小</span>
-          <span v-else>長高</span>
-        </el-button>
-        <line-chart
-          id="chart"
-          :chart-data="chartData"
-          :style="chartStyle"
-        />
-      </div>
-      <div v-else class="message">
-        <h2>
-          <span v-if="loaded && chartDataNotFound">查無資料</span>
-          <span v-else>選擇路段</span>
-        </h2>
-      </div>
-      <!-- <el-row>
-        <el-button @click="checkSectionInGoogleMap">
-          GOOGLE MAP
-        </el-button>
-      </el-row> -->
-    </div>
+    <chart-container
+      :query-object="queryObject"
+    />
   </div>
 </template>
 
 <script>
 import request from 'axios'
 import moment from 'moment'
-import LineChart from './Line'
-
-function getColorByLabel (label) {
-  const colors = {
-    '小客車': 'rgb(255, 99, 132)',
-    '小貨車': 'rgb(255, 159, 64)',
-    '大貨車': 'rgb(255, 205, 86)',
-    '大客車': 'rgb(75, 192, 192)',
-    '聯結車': 'rgb(54, 162, 235)',
-    '總計': 'rgb(153, 102, 255)'
-    // purple: 'rgb(153, 102, 255)',
-    // grey: 'rgb(201, 203, 207)'
-  }
-
-  return colors[label]
-}
+import ChartContainer from './ChartContainer'
 export default {
   name: 'SectionList',
   components: {
-    LineChart
+    ChartContainer
   },
   filters: {
     formatCurrentSection (c) {
@@ -151,43 +108,42 @@ export default {
       queryHour: '15:00',
       querySectionVisible: false,
       currentSection: false,
-      sections: [],
-      data: {},
-      loaded: false,
-      isChartExpand: false,
-      chartDataNotFound: true,
-      chartData: {
-        datasets: []
-      },
-      chartStyle: {
-        height: '400px'
-      }
+      sections: []
     }
   },
   computed: {
     sectionsFiltered () {
-      // TODO
-      // implement filter function
       return this.sections.filter((data) => {
         if (data.direction === this.queryDirection &&
           data.roadName === this.queryRoadName) {
           return true
         }
       })
+    },
+    queryDirectionAndRoadName () {
+      return this.queryDirection + this.queryRoadName
+    },
+    queryDateAndHour () {
+      return this.queryDate + this.queryHour
+    },
+    queryObject () {
+      return {
+        queryDate: this.queryDate,
+        queryHour: this.queryHour,
+        startGentry: this.currentSection.startGentry,
+        endGentry: this.currentSection.endGentry
+      }
     }
   },
   watch: {
-    queryDirection () {
-      this.resetCurrentQuerySection()
+    // custom computed variables
+    queryDirectionAndRoadName () {
+      this.currentSection = false
     },
-    queryRoadName () {
-      this.resetCurrentQuerySection()
-    },
-    queryDate () {
-      this.queryOnDateHourChange()
-    },
-    queryHour () {
-      this.queryOnDateHourChange()
+    queryDateAndHour () {
+      if (this.currentSection) {
+        this.handleCurrentChange(this.currentSection)
+      }
     }
   },
   created () {
@@ -195,33 +151,7 @@ export default {
       this.sections = res.data
     })
   },
-  mounted () {
-    // this.directionsService = new window.google.maps.DirectionsService()
-    // this.directionsRenderer = new window.google.maps.DirectionsRenderer()
-    // this.directionsRenderer.setMap(this.$refs.gMap)
-  },
   methods: {
-    resetCurrentQuerySection () {
-      this.currentSection = false
-    },
-    queryOnDateHourChange () {
-      if (this.currentSection) {
-        this.handleCurrentChange(this.currentSection)
-      }
-    },
-    toggleChartStyle () {
-      this.isChartExpand = !this.isChartExpand
-      this.chartData = Object.assign({}, this.chartData)
-      if (this.isChartExpand) {
-        this.chartStyle = {
-          height: '90vh'
-        }
-      } else {
-        this.chartStyle = {
-          height: '400px'
-        }
-      }
-    },
     mapInit (e) {
       if (this.directionsService) { return }
       this.directionsService = new window.google.maps.DirectionsService()
@@ -241,101 +171,22 @@ export default {
       })
     },
     handleCurrentChange (row) {
-      this.querySectionVisible = false
-      this.loaded = false
       // prevent emptry row
       if (!row) { return }
+      this.querySectionVisible = false
       this.gtagTracking(row)
-      this.currentSection = row
       this.drawSection(row)
-      // this.gmapUrl = `https://www.google.com/maps/embed/v1/directions?key=${process.env.GMAP_KEY}&origin=${row.startPositon}&destination=${row.endPositon}`
-      const url = `/sections/${row.startGentry}/${row.endGentry}/${this.queryDate} ${this.queryHour}`
-      request(url).then((res) => {
-        // this.data = res.data
-        const data = res.data
-        this.loaded = true
-
-        if (!data.maxSpeed) {
-          this.chartDataNotFound = true
-          return
-        }
-
-        this.chartDataNotFound = false
-        // debugger
-        // const data = []
-        // const xLabel = Object.keys(res.data.data)
-
-        const chartData = {
-          datasets: []
-        }
-        const maxSpeed = data.maxSpeed
-        const xLabels = [...Array(maxSpeed + 1).keys()]
-
-        // const totalData = Array(maxSpeed + 1)
-        const totalData = Array.from({ length: maxSpeed }, (v, k) => 0)
-        // debugger
-        let totalValidCount = 0
-        let total85th = 0
-        Object.keys(data.byVtype).forEach((l, k) => {
-          const dataByVType = data.byVtype[l]
-          const speeds = dataByVType.speeds
-          const _data = []
-          xLabels.forEach((v, i) => {
-            let s = speeds[v]
-            if (typeof s === 'undefined') {
-              s = 0
-            }
-            totalData[i] = totalData[i] + s
-            _data.push(s)
-          })
-          totalValidCount = totalValidCount + dataByVType.validCount
-          total85th = total85th + dataByVType._85th
-          chartData.datasets[k] = {
-            fill: false,
-            label: `${l} ${dataByVType.validCount} 輛, 85th ${dataByVType._85th} KM/h `,
-            borderColor: getColorByLabel(l),
-            data: _data
-          }
-        })
-        total85th = total85th / (chartData.datasets.length)
-        total85th = parseInt(total85th)
-        // console.log('totalData', totalData)
-        // count total
-        chartData.datasets.unshift({
-          fill: false,
-          label: `總計 ${totalValidCount} 輛, 85th ${total85th} KM/h `,
-          // label: [
-          //   `總計 ${totalValidCount} 輛`,
-          //   `85th ${total85th} KM/h`
-          // ],
-          borderColor: getColorByLabel('總計'),
-          data: totalData
-        })
-
-        chartData.labels = xLabels
-        this.chartData = Object.assign({}, {}, chartData)
-      })
-    },
-    sectionRange (row, col) {
-      const s = row.startGentry
-      const e = row.endGentry
-      return `${s.sectionStart} ${s.locationMileRaw} ~ ${e.sectionEnd}  ${e.locationMileRaw}`
+      this.currentSection = row
     },
     gtagTracking (row) {
       // console.log(row)
       // console.log(this.sectionRange(row))
       if (window.gtag) {
         window.gtag('event', 'click', {
-          'event_category': 'section'
-          // 'event_label': this.sectionRange(row)
+          'event_category': 'section',
+          'event_label': row.name
         })
       }
-    },
-    getMiles (row, col) {
-      const r = Math.abs(row.endGentry.locationMile - row.startGentry.locationMile).toFixed(2)
-
-      if (isNaN(r)) { return -1 }
-      return r
     }
   }
 }

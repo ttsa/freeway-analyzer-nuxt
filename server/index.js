@@ -42,13 +42,12 @@ async function start () {
     res.json(list)
   })
 
-  app.get('/sections/:startId/:endId/:timestamp', (req, res, next) => {
+  app.get('/sections/:startId/:endId/:date/:hour', (req, res, next) => {
     const q = {
       s: req.params.startId,
       e: req.params.endId,
-      t: req.params.timestamp
+      t: req.params.date + ' ' + req.params.hour
     }
-    console.log(q)
     const data = lowdb.get('freeflows').find(q).value()
     // console.log(data)
     const result = {
@@ -58,10 +57,7 @@ async function start () {
     if (data) {
       result.maxSpeed = data.m
       Object.keys(data.d).forEach((vType) => {
-        // console.log(vType)
         const _vType = getVehicleType(vType)
-        // console.log('_vType', _vType)
-        // console.log('vType', vType)
         result.byVtype[_vType] = data.d[vType.toString()]
       })
     }
