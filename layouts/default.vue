@@ -14,7 +14,9 @@
 </template>
 
 <style>
-body{
-  background: #FFF;
+html, body{
+  /* background: #FFF; */
+  margin:0;
+  padding:0;
 }
 </style>

@@ -1,5 +1,12 @@
 <template>
   <div>
+    <GMap
+      id="gmap"
+      ref="gMap"
+      @idle="mapInit"
+      :options="{fullscreenControl: false, disableDefaultUI: true, center: {lat: 23.980919, lng: 121.051022}}"
+      :zoom="8"
+    />
     <section class="query-section">
       <el-date-picker
         v-model="queryDate"
@@ -30,67 +37,50 @@
       </el-radio-group>
     </section>
 
-    <el-container style="height: 500px; border: 1px solid #eee">
-      <el-aside width="350px" style="background-color: rgb(238, 241, 246)">
-        <el-table
-          :data="sectionsFiltered"
-          @current-change="handleCurrentChange"
-          highlight-current-row
-          height="500"
-          style="width: 100%"
-        >
-          <!-- <el-table-column
+    <el-table
+      id="section-list"
+      :data="sectionsFiltered"
+      @current-change="handleCurrentChange"
+      highlight-current-row
+      height="400"
+    >
+      <!-- <el-table-column
             :formatter="(r) => { return r.startGentry + ',' + r.endGentry}"
             label="ID"
             sortable
           /> -->
-          <el-table-column
-            :formatter="(r) => { return r.name }"
-            prop="startMile"
-            label="路段"
-            sortable
-          />
-          <el-table-column
-            :formatter="(row, col) => { return row.mile}"
-            prop="startMile"
-            label="里程"
-            sortable
-          />
-        </el-table>
-      </el-aside>
-      <el-main v-if="loaded">
+      <el-table-column
+        :formatter="(r) => { return r.name }"
+        prop="startMile"
+        label="路段"
+        sortable
+      />
+      <el-table-column
+        :formatter="(row, col) => { return row.mile}"
+        prop="startMile"
+        label="里程"
+        sortable
+      />
+    </el-table>
+
+    <div id="chart-wrapper">
+      <div v-if="loaded">
         <line-chart
+          id="chart"
           :chart-data="chartData"
         />
-        <el-row>
-          <!-- <el-button @click="checkSectionInGoogleMap">
-            GOOGLE MAP
-          </el-button> -->
-          <!-- <el-button type="primary">
-            Primary
-          </el-button>
-          <el-button type="success">
-            Success
-          </el-button>
-          <el-button type="info">
-            Info
-          </el-button>
-          <el-button type="warning">
-            Warning
-          </el-button>
-          <el-button type="danger">
-            Danger
-          </el-button> -->
-        </el-row>
-        <iframe
-          :src="gmapUrl"
-          width="600"
-          height="450"
-          frameborder="0"
-          style="border:0"
-        />
-      </el-main>
-    </el-container>
+      </div>
+      <div v-else>
+        <h2 style="margin-top:25%;">
+          點擊左邊的路段
+        </h2>
+      </div>
+      <!-- <el-row>
+        <el-button @click="checkSectionInGoogleMap">
+          GOOGLE MAP
+        </el-button>
+      </el-row> -->
+    </div>
   </div>
 </template>
 
@@ -164,7 +154,19 @@ export default {
       this.sections = res.data
     })
   },
+  mounted () {
+    // this.directionsService = new window.google.maps.DirectionsService()
+    // this.directionsRenderer = new window.google.maps.DirectionsRenderer()
+    // this.directionsRenderer.setMap(this.$refs.gMap)
+  },
   methods: {
+    mapInit (e) {
+      if (this.directionsService) { return }
+      this.directionsService = new window.google.maps.DirectionsService()
+      this.directionsRenderer = new window.google.maps.DirectionsRenderer()
+      this.directionsRenderer.setMap(e.map)
+      console.log(e.map)
+    },
     searchData (sections) {
       // console.log('sections', sections)
       return sections.filter((data) => {
@@ -176,11 +178,23 @@ export default {
     },
     checkSectionInGoogleMap () {
       const c = this.currentSection
-      const url = `https://www.google.com/maps/search/${c.PositionLat},${c.PositionLon}`
-      // const url = `https://www.google.com/maps/dir/${c.startPositon}/${c.endPositon}`
+      // const url = `https://www.google.com/maps/search/${c.PositionLat},${c.PositionLon}`
+      const url = `https://www.google.com/maps/dir/${c.startPositon}/${c.endPositon}`
       // const url = `https://www.google.com/maps/embed/v1/directions?key=AIzaSyBOUrqs6YzoKU1PCEcdXWWXv7JKzXiHkK4&origin=${c.startPositon}&destination=${c.endPositon}`
       // this.gmapUrl = url
       window.open(url)
+    },
+    drawSection (row) {
+      const request = {
+        origin: row.startPositon,
+        destination: row.endPositon,
+        travelMode: 'DRIVING'
+      }
+      this.directionsService.route(request, (result, status) => {
+        if (status === 'OK') {
+          this.directionsRenderer.setDirections(result)
+        }
+      })
     },
     handleCurrentChange (row) {
       this.loaded = false
@@ -188,8 +202,10 @@ export default {
       if (!row) { return }
       this.gtagTracking(row)
       this.currentSection = row
-      this.gmapUrl = `https://www.google.com/maps/embed/v1/directions?key=${process.env.GMAP_KEY}&origin=${row.startPositon}&destination=${row.endPositon}`
+      this.drawSection(row)
+      // this.gmapUrl = `https://www.google.com/maps/embed/v1/directions?key=${process.env.GMAP_KEY}&origin=${row.startPositon}&destination=${row.endPositon}`
       const url = `/sections/${row.startGentry}?date=${this.queryDate}&hour=${this.queryHour}`
+
       request(url).then((res) => {
         this.data = res.data
         // debugger
@@ -270,14 +286,37 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
+.el-table__row:hover {
+  cursor: pointer;
+}
+#gmap {
+  width: 100%;
+  /* height: 100%; */
+  position: fixed;
+  top: 0px;
+  left: 0;
+  z-index: -1;
+}
+.GMap__Wrapper {
+  height: calc(100vh - 400px) !important;
+}
 .query-section {
   margin: 1em 0;
 }
-.chart {
-  min-height: 40vh;
+
+#chart-wrapper {
+  background:#ffffff;
+  width: calc(100vw - 350px);
+  height: 400px;
+  position: fixed;
+  bottom: 0px;
+  right: 0;
 }
-.chart article {
-  padding:2em;
+#section-list {
+  position: fixed;
+  left: 0px;
+  bottom: 0px;
+  width: 350px;
 }
 </style>
