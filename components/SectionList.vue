@@ -14,6 +14,7 @@
         type="date"
         value-format="yyyy-MM-dd"
         placeholder="選擇查詢日期"
+        style="width: 135px;"
       />
       <el-time-select
         v-model="queryHour"
@@ -22,6 +23,7 @@
           step: '01:00',
           end: '23:00'
         }"
+        style="width: 100px;"
         placeholder="選擇查詢時段"
       />
       <el-select v-model="queryRoadName" placeholder="選擇國道路段">
@@ -35,33 +37,37 @@
         <el-radio-button label="N" />
         <el-radio-button label="S" />
       </el-radio-group>
-    </section>
-
-    <el-table
-      id="section-list"
-      :data="sectionsFiltered"
-      @current-change="handleCurrentChange"
-      highlight-current-row
-      height="400"
-    >
-      <!-- <el-table-column
-            :formatter="(r) => { return r.startGentry + ',' + r.endGentry}"
-            label="ID"
+      <el-popover
+        id="section-selector"
+        v-model="querySectionVisible"
+        placement="right"
+        width="400"
+        trigger="click"
+      >
+        <el-table
+          :data="sectionsFiltered"
+          @current-change="handleCurrentChange"
+          highlight-current-row
+          height="400"
+        >
+          <el-table-column
+            :formatter="(r) => { return r.name }"
+            prop="startMile"
+            label="路段"
             sortable
-          /> -->
-      <el-table-column
-        :formatter="(r) => { return r.name }"
-        prop="startMile"
-        label="路段"
-        sortable
-      />
-      <el-table-column
-        :formatter="(row, col) => { return row.mile}"
-        prop="startMile"
-        label="里程"
-        sortable
-      />
-    </el-table>
+          />
+          <el-table-column
+            :formatter="(row, col) => { return row.mile}"
+            prop="startMile"
+            label="里程"
+            sortable
+          />
+        </el-table>
+        <el-button slot="reference">
+          {{ currentSection | formatCurrentSection }}
+        </el-button>
+      </el-popover>
+    </section>
 
     <div id="chart-wrapper">
       <div v-if="loaded && !chartDataNotFound">
@@ -109,6 +115,15 @@ export default {
   components: {
     LineChart
   },
+  filters: {
+    formatCurrentSection (c) {
+      if (typeof c.name === 'undefined') {
+        return '選擇路段'
+      } else {
+        return c.name + c.mile
+      }
+    }
+  },
   data () {
     return {
       gmapUrl: '',
@@ -123,6 +138,7 @@ export default {
       // queryDate: moment().subtract(1, 'day').format('YYYY-MM-DD'),
       queryDate: '2019-12-14',
       queryHour: '15:00',
+      querySectionVisible: false,
       currentSection: {},
       sections: [],
       data: {},
@@ -200,6 +216,7 @@ export default {
       })
     },
     handleCurrentChange (row) {
+      this.querySectionVisible = false
       this.loaded = false
       // prevent emptry row
       if (!row) { return }
@@ -315,16 +332,23 @@ export default {
 
 #chart-wrapper {
   background:#ffffff;
-  width: calc(100vw - 400px);
+  /* width: calc(100vw - 400px); */
+  width: 100%;
   height: 400px;
   position: fixed;
   bottom: 0px;
   right: 0;
 }
-#section-list {
+/* #section-list {
   position: fixed;
   left: 0px;
   bottom: 0px;
   width: 400px;
+} */
+#section-selector {
+  padding:0;
+}
+.el-date-editor.el-input__inner{
+  width: 135px;
 }
 </style>
