@@ -31,22 +31,15 @@ async function start () {
   }
 
   app.get('/sections', (req, res, next) => {
-    // const gentries = getGentry('all')
-    // const list = Object.keys(gentries).map((k) => {
-    //   return {
-    //     gentryId: k,
-    //     ...gentries[k]
-    //   }
-    // })
     const list = getAvaiableSections()
     res.json(list)
   })
 
-  app.get('/sections/:startId/:endId/:date/:hour', (req, res, next) => {
+  app.get('/getSection', (req, res, next) => {
     const q = {
-      s: req.params.startId,
-      e: req.params.endId,
-      t: req.params.date + ' ' + req.params.hour
+      s: req.query.s,
+      e: req.query.e,
+      t: req.query.d + ' ' + req.query.h
     }
     const data = lowdb.get('freeflows').find(q).value()
     // console.log(data)

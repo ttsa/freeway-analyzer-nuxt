@@ -48,10 +48,10 @@ module.exports = function () {
         direction: c.direction,
         startGentry: c.gentryId,
         startMile: c.locationMile,
-        startPositon: c.PositionLat + ',' + c.PositionLon,
+        startPosition: c.PositionLat + ',' + c.PositionLon,
         endGentry: n.gentryId,
         // endMile: n.locationMile,
-        endPositon: n.PositionLat + ',' + n.PositionLon,
+        endPosition: n.PositionLat + ',' + n.PositionLon,
         roadName: c.roadName,
         mile: `${c.locationMileRaw} -> ${n.locationMileRaw}`,
         name: `${c.sectionStart} -> ${n.sectionStart}`

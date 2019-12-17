@@ -1,21 +1,19 @@
 <template>
-  <div>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-8649920-15" />
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-8649920-15');
-    </script>
-    <nuxt />
-  </div>
+  <nuxt />
 </template>
+<script>
+window.dataLayer = window.dataLayer || []
+function gtag () { window.dataLayer.push(arguments) }
+gtag('js', new Date())
+
+gtag('config', 'UA-8649920-15')
+export default {
+
+}
+</script>
 
 <style>
 html, body{
-  /* background: #FFF; */
   margin:0;
   padding:0;
 }

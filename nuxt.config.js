@@ -13,6 +13,7 @@ module.exports = {
       // { src: 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js' },
       // { src: 'https://unpkg.com/vue-chartjs/dist/vue-chartjs.min.js' }
       // { src: `https://maps.googleapis.com/maps/api/js?key=${process.env.GMAP_KEY}` }
+      { src: 'https://www.googletagmanager.com/gtag/js?id=UA-8649920-15' }
     ],
     title: process.env.npm_package_name || '',
     meta: [
