@@ -302,12 +302,12 @@ export default {
   height: calc(100vh - 400px) !important;
 }
 .query-section {
-  margin: 1em 0;
+  margin: 0;
 }
 
 #chart-wrapper {
   background:#ffffff;
-  width: calc(100vw - 350px);
+  width: calc(100vw - 400px);
   height: 400px;
   position: fixed;
   bottom: 0px;
@@ -317,6 +317,6 @@ export default {
   position: fixed;
   left: 0px;
   bottom: 0px;
-  width: 350px;
+  width: 400px;
 }
 </style>

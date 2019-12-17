@@ -1,11 +1,12 @@
 module.exports = function (shipit) {
   require('shipit-deploy')(shipit)
   const name = 'freeway-analyzer'
+  const deployTo = '/app/' + name
   shipit.initConfig({
     // branch: 'supplier-login',
     default: {
       workspace: '/tmp/github-monitor',
-      deployTo: '/app/' + name,
+      deployTo,
       repositoryUrl: 'https://github.com/ttsa/freeway-analyzer-nuxt'
     },
     production: {
@@ -18,11 +19,11 @@ module.exports = function (shipit) {
     // console.log(shipit.config.deployTo)
     await shipit.copyToRemote(
       './dist',
-      shipit.config.deployTo + '/current'
+      deployTo + '/current'
     )
     await shipit.copyToRemote(
       './.nuxt',
-      shipit.config.deployTo + '/current'
+      deployTo + '/current'
     )
   })
 
@@ -33,11 +34,11 @@ module.exports = function (shipit) {
       await shipit.local(`npm run build`)
       await shipit.copyToRemote(
         './dist',
-        shipit.deployTo
+        deployTo + '/current'
       )
       await shipit.copyToRemote(
         './.nuxt',
-        shipit.config.deployTo + '/current'
+        deployTo + '/current'
       )
     } catch (error) {
       console.log(error)
@@ -47,7 +48,7 @@ module.exports = function (shipit) {
   })
 
   shipit.task('restartApp', async () => {
-    const currentPath = `${shipit.config.deployTo}/current`
+    const currentPath = `${deployTo}/current`
     try {
       await shipit.remote(`cd ${currentPath} && nvm use && pm2 restart ecosystem.config.js`)
       // await shipit.remote(`pm2 start ${current_path}/srv/index.js --name ${name}`)

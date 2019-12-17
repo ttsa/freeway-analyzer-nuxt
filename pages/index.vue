@@ -21,10 +21,10 @@ export default {
 <style>
 h1 {
   background: rgba(255,255,255, 0.5);
-  /* background-color: white; */
   display: inline-block;
   padding: 0.3em 0.5em;
   border-radius: 20px;
+  margin: 0.5em;
 }
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
