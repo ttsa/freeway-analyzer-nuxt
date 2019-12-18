@@ -9,35 +9,42 @@
       :current-section="currentSection"
     />
     <section class="query-section">
-      <el-date-picker
-        v-model="queryDate"
-        :picker-options="pickerOptions"
-        type="date"
-        value-format="yyyy-MM-dd"
-        placeholder="選擇查詢日期"
-        style="width: 135px;"
-      />
-      <el-time-select
-        v-model="queryHour"
-        :picker-options="{
-          start: '00:00',
-          step: '01:00',
-          end: '23:00'
-        }"
-        style="width: 100px;"
-        placeholder="選擇查詢時段"
-      />
-      <el-select v-model="queryRoadName" placeholder="選擇國道路段">
-        <el-option
-          v-for="item in avaiableRoadNames"
-          :key="item"
-          :value="item"
+      <div>
+        <el-date-picker
+          v-model="queryDate"
+          :picker-options="pickerOptions"
+          type="date"
+          value-format="yyyy-MM-dd"
+          placeholder="選擇查詢日期"
+          style="width: 135px;"
         />
-      </el-select>
-      <el-radio-group v-model="queryDirection" style="margin-top:-4px">
-        <el-radio-button label="N" />
-        <el-radio-button label="S" />
-      </el-radio-group>
+        <el-time-select
+          v-model="queryHour"
+          :picker-options="{
+            start: '00:00',
+            step: '01:00',
+            end: '23:00'
+          }"
+          style="width: 100px;"
+          placeholder="選擇查詢時段"
+        />
+      </div>
+      <div>
+        <el-select
+          v-model="queryRoadName"
+          placeholder="選擇國道路段"
+        >
+          <el-option
+            v-for="item in avaiableRoadNames"
+            :key="item"
+            :value="item"
+          />
+        </el-select>
+        <el-radio-group v-model="queryDirection" style="margin-top:-4px">
+          <el-radio-button label="N" />
+          <el-radio-button label="S" />
+        </el-radio-group>
+      </div>
       <el-popover
         id="section-selector"
         v-model="querySectionVisible"
@@ -92,7 +99,8 @@ export default {
       if (typeof c.name === 'undefined') {
         return '選擇路段'
       } else {
-        return c.name + c.mile
+        // return c.name + c.mile
+        return c.name
       }
     }
   },
@@ -172,13 +180,16 @@ h1 {
   display: inline-block;
   padding: 0.3em 0.5em;
   border-radius: 20px;
-  margin: 0.5em;
+  /* margin: 0.5em; */
+  margin: 0;
+  margin-left: 5px;
+  margin-bottom: 5px;
 }
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
+  text-align: left;
   color: #2c3e50;
 }
 .data-source {
@@ -187,9 +198,9 @@ h1 {
   margin:0;
   padding:0;
   position: fixed;
-  left:0;
-  top:0;
-  text-align: left;
+  bottom:0;
+  text-align: right;
+  z-index: 1000;
 }
 .el-table__row:hover {
   cursor: pointer;
@@ -199,9 +210,17 @@ h1 {
   margin: 0;
   z-index: 2;
   position: relative;
+  left: 5px;
+  width: 400px;
+}
+.query-section > div {
+  margin-bottom: 5px;
 }
 
 .el-date-editor.el-input__inner{
-  width: 135px;
+  width: 200px;
+}
+.el-input--suffix .el-input__inner {
+  text-align: center;
 }
 </style>
