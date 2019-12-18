@@ -15,7 +15,7 @@ module.exports = {
       // { src: `https://maps.googleapis.com/maps/api/js?key=${process.env.GMAP_KEY}` }
       { src: 'https://www.googletagmanager.com/gtag/js?id=UA-8649920-15' }
     ],
-    title: process.env.npm_package_name || '',
+    title: '台灣高速公路自由車流分析器',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },

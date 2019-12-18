@@ -77,7 +77,8 @@ export default {
     queryObject (newVal, oldVal) {
       if (
         Object.keys(newVal).length === 0 ||
-        JSON.stringify(newVal) === JSON.stringify(oldVal)
+        JSON.stringify(newVal) === JSON.stringify(oldVal) ||
+        typeof newVal.startGentry !== 'string'
       ) { return }
       this.loaded = false
       this.query(newVal)

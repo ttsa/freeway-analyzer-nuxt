@@ -20,10 +20,12 @@
     "cross-env": "^5.2.0",
     "element-ui": "^2.4.11",
     "express": "^4.16.4",
+    "leaflet": "^1.6.0",
     "lowdb": "^1.0.0",
     "nuxt": "^2.0.0",
     "nuxt-gmaps": "^1.1.7",
-    "vue-chartjs": "^3.5.0"
+    "vue-chartjs": "^3.5.0",
+    "vue2-leaflet": "^2.3.2"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.1",
