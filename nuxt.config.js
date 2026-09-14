@@ -54,20 +54,12 @@ module.exports = {
   ** Nuxt.js modules
   */
   modules: [
-    // Doc: https://axios.nuxtjs.org/usage
-    '@nuxtjs/axios',
     ['nuxt-gmaps', {
       key: process.env.GMAP_KEY
       // you can use libraries: ['places']
     }]
 
   ],
-  /*
-  ** Axios module configuration
-  ** See https://axios.nuxtjs.org/options
-  */
-  axios: {
-  },
   /*
   ** Build configuration
   */

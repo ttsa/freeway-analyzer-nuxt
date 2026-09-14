@@ -12,17 +12,18 @@
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore ."
   },
   "dependencies": {
-    "@google-cloud/firestore": "^2.6.1",
-    "@nuxtjs/axios": "^5.3.6",
+    "@google-cloud/firestore": "7.4.0",
     "@nuxtjs/eslint-config": "^1.0.1",
     "@nuxtjs/eslint-module": "^1.0.0",
-    "chart.js": "^2.9.3",
+    "axios": "^1.20.0",
+    "chart.js": "^2.9.4",
     "cross-env": "^5.2.0",
-    "element-ui": "^2.4.11",
-    "express": "^4.16.4",
+    "element-ui": "^2.15.14",
+    "express": "^4.22.2",
     "leaflet": "^1.6.0",
     "lowdb": "^1.0.0",
-    "nuxt": "^2.0.0",
+    "moment": "^2.30.1",
+    "nuxt": "^2.18.1",
     "nuxt-gmaps": "^1.1.7",
     "vue-chartjs": "^3.5.0",
     "vue2-leaflet": "^2.3.2"
@@ -32,8 +33,8 @@
     "cli-progress": "^3.4.0",
     "eslint": "^6.1.0",
     "eslint-plugin-nuxt": ">=0.4.2",
-    "fast-csv": "^3.6.0",
-    "nodemon": "^1.18.9",
+    "fast-csv": "^4.3.6",
+    "nodemon": "^3.1.14",
     "shipit": "^1.2.0",
     "shipit-deploy": "^5.1.0"
   }
